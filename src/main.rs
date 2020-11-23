@@ -1,7 +1,6 @@
 extern crate dotenv;
 extern crate pretty_env_logger;
 extern crate rbatis;
-#[macro_use] extern crate rbatis_macro_driver;
 #[macro_use] extern crate log;
 
 use std::{env, io::Result};
