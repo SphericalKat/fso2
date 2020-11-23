@@ -34,9 +34,11 @@ struct DirTemplate {
 pub async fn render_files_root() -> impl Responder {
     let current_dir = env::current_dir().unwrap();
     let walker = WalkDir::new(current_dir.clone()).max_depth(1).into_iter();
+
     let files = walker
         .filter_entry(|e| !is_hidden(e))
         .map(|e| strip_prefix(e));
+
     let containers = files
         .filter_map(|f| {
             if f.file_name().is_none() {
@@ -51,19 +53,22 @@ pub async fn render_files_root() -> impl Responder {
         .collect::<Vec<TemplateContainer>>();
 
     let template = DirTemplate { containers };
-    HttpResponse::Ok().body(template.render().unwrap())
+    HttpResponse::Ok().body(template.render().unwrap_or(String::from("Something went wrong")))
 }
 
 #[get("/{path:.*}")]
 pub async fn render_files(path_param: web::Path<(String,)>) -> impl Responder {
     let path = path_param.into_inner().0;
     let current_dir = env::current_dir().unwrap();
+    
     let walker = WalkDir::new(current_dir.join(path))
         .max_depth(1)
         .into_iter();
+
     let files = walker
         .filter_entry(|e| !is_hidden(e))
         .map(|e| strip_prefix(e));
+
     let containers = files
         .filter_map(|f| {
             if f.file_name().is_none() {
@@ -78,5 +83,5 @@ pub async fn render_files(path_param: web::Path<(String,)>) -> impl Responder {
         .collect::<Vec<TemplateContainer>>();
 
     let template = DirTemplate { containers };
-    HttpResponse::Ok().body(template.render().unwrap())
+    HttpResponse::Ok().body(template.render().unwrap_or(String::from("Something went wrong")))
 }
