@@ -8,13 +8,8 @@ pub mod api;
 pub mod models;
 pub mod schemas;
 
-#[get("/")]
-fn health_check() -> &'static str {
-    "OK"
-}
-
 fn rocket() -> rocket::Rocket {
-    let rocket = rocket::ignite().mount("/api", routes![health_check]);
+    let rocket = rocket::ignite();
     api::endpoints::fuel(rocket)
 }
 

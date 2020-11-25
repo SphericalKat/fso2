@@ -1,7 +1,7 @@
 use std::{path::PathBuf, env};
 use askama::Template;
 use rocket::{Outcome, Rocket, request::FromRequest, response::NamedFile, http::Status};
-use walkdir::{DirEntry, Error, WalkDir};
+use walkdir::{DirEntry, WalkDir, Error};
 
 fn is_hidden(entry: &DirEntry) -> bool {
     entry
@@ -55,6 +55,30 @@ impl <'a, 'r> FromRequest<'a, 'r> for CustomPath {
     }
 }
 
+#[get("/")]
+fn root_file() -> DirTemplate {
+    let walker = WalkDir::new(env::current_dir().unwrap()).max_depth(1).into_iter();
+
+    let files = walker
+        .filter_entry(|e| !is_hidden(e))
+        .filter_map(|f| strip_prefix(f));
+
+    let containers = files
+        .filter_map(|f| {
+            if f.file_name().is_none() {
+                None
+            } else {
+                Some(TemplateContainer {
+                    filename: f.file_name().unwrap().to_string_lossy().to_string(),
+                    path: f.to_string_lossy().to_string(),
+                })
+            }
+        })
+        .collect::<Vec<TemplateContainer>>();
+
+    DirTemplate { containers }
+}
+
 #[get("/<file..>")]
 fn static_file(file: PathBuf, _path: CustomPath) -> Option<NamedFile> {
     NamedFile::open(file).ok()
@@ -86,5 +110,5 @@ fn file(file: PathBuf) -> DirTemplate {
 }
 
 pub fn fuel(rocket: Rocket) -> Rocket {
-    rocket.mount("/", routes![static_file, file])
+    rocket.mount("/", routes![root_file, static_file, file])
 }
