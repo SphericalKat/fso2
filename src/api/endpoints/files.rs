@@ -1,7 +1,7 @@
-use std::{path::PathBuf, env};
 use askama::Template;
-use rocket::{Outcome, Rocket, request::FromRequest, response::NamedFile, http::Status};
-use walkdir::{DirEntry, WalkDir, Error};
+use rocket::{http::Status, request::FromRequest, response::NamedFile, Outcome, Rocket};
+use std::{env, path::PathBuf};
+use walkdir::{DirEntry, Error, WalkDir};
 
 fn is_hidden(entry: &DirEntry) -> bool {
     entry
@@ -14,10 +14,15 @@ fn is_hidden(entry: &DirEntry) -> bool {
 fn strip_prefix(e: Result<DirEntry, Error>) -> Option<PathBuf> {
     let path = e.unwrap();
     return if path.path().exists() {
-        Some(path.path().strip_prefix(env::current_dir().unwrap()).unwrap().to_path_buf())
+        Some(
+            path.path()
+                .strip_prefix(env::current_dir().unwrap())
+                .unwrap()
+                .to_path_buf(),
+        )
     } else {
         None
-    }
+    };
 }
 
 struct TemplateContainer {
@@ -33,10 +38,12 @@ struct DirTemplate {
 
 pub struct CustomPath(pub PathBuf);
 
-impl <'a, 'r> FromRequest<'a, 'r> for CustomPath {
+impl<'a, 'r> FromRequest<'a, 'r> for CustomPath {
     type Error = ();
 
-    fn from_request(request: &'a rocket::Request<'r>) -> rocket::request::Outcome<Self, Self::Error> {
+    fn from_request(
+        request: &'a rocket::Request<'r>,
+    ) -> rocket::request::Outcome<Self, Self::Error> {
         let path_str = request.uri().path().strip_prefix("/");
         if path_str.is_none() {
             return Outcome::Failure((Status::InternalServerError, ()));
@@ -48,7 +55,7 @@ impl <'a, 'r> FromRequest<'a, 'r> for CustomPath {
                 Outcome::Success(CustomPath(path))
             } else {
                 Outcome::Forward(())
-            }
+            };
         } else {
             Outcome::Failure((Status::NotFound, ()))
         }
@@ -57,7 +64,9 @@ impl <'a, 'r> FromRequest<'a, 'r> for CustomPath {
 
 #[get("/")]
 fn root_file() -> DirTemplate {
-    let walker = WalkDir::new(env::current_dir().unwrap()).max_depth(1).into_iter();
+    let walker = WalkDir::new(env::current_dir().unwrap())
+        .max_depth(1)
+        .into_iter();
 
     let files = walker
         .filter_entry(|e| !is_hidden(e))
