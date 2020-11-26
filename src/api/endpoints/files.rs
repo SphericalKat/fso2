@@ -7,7 +7,7 @@ fn is_hidden(entry: &DirEntry) -> bool {
     entry
         .file_name()
         .to_str()
-        .map(|s| s.starts_with("."))
+        .map(|s| s.starts_with('.'))
         .unwrap_or(false)
 }
 
@@ -51,11 +51,11 @@ impl<'a, 'r> FromRequest<'a, 'r> for CustomPath {
 
         let path = PathBuf::from(path_str.unwrap());
         if path.exists() {
-            return if path.is_file() {
+            if path.is_file() {
                 Outcome::Success(CustomPath(path))
             } else {
                 Outcome::Forward(())
-            };
+            }
         } else {
             Outcome::Failure((Status::NotFound, ()))
         }
@@ -70,7 +70,7 @@ fn root_file() -> DirTemplate {
 
     let files = walker
         .filter_entry(|e| !is_hidden(e))
-        .filter_map(|f| strip_prefix(f));
+        .filter_map(strip_prefix);
 
     let containers = files
         .filter_map(|f| {
