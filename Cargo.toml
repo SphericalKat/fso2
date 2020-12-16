@@ -23,7 +23,7 @@ slog-term = "2.6.0"
 
 # General purpose dependencies
 dotenv = "0.15.0"
-anyhow = "1.0.34"
+anyhow = "1.0.35"
 slog-async = "2.5.0"
 askama = { version = "0.10.5", features = ["with-rocket"] }
 askama_rocket = "0.10.0"
