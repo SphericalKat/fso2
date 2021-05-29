@@ -13,18 +13,18 @@ readme = "README.md"
 [dependencies]
 
 # Rocket REST framework
-rocket = "0.4.6"
-rocket_contrib = { version = "0.4.6", default-features = false, features = ["json", "uuid"] }
+rocket = "0.4.10"
+rocket_contrib = { version = "0.4.10", default-features = false, features = ["json", "uuid"] }
 rocket_cors = "0.5.2"
 
 # Logger
 slog = "2.7.0"
-slog-term = "2.6.0"
+slog-term = "2.8.0"
 
 # General purpose dependencies
 dotenv = "0.15.0"
-anyhow = "1.0.35"
-slog-async = "2.5.0"
+anyhow = "1.0.40"
+slog-async = "2.6.0"
 askama = { version = "0.10.5", features = ["with-rocket"] }
 askama_rocket = "0.10.0"
-walkdir = "2.3.1"
+walkdir = "2.3.2"
